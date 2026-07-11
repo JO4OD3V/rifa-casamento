@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorteio da Rifa de Casamento — João & Eduarda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Alex+Brush&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ============================================================
+   TOKENS — paleta lilás / dourado / marfim, tipografia elegante
+   ============================================================ */
+:root{
+  --cream:#f8f4ee;
+  --paper:#fbf8f3;
+  --lilac-pale:#ece2f4;
+  --lilac:#b79bd6;
+  --lilac-deep:#7c5a9e;
+  --lilac-ink:#4a3660;
+  --gold:#c6a768;
+  --gold-light:#e3d1a4;
+  --gold-deep:#a3824a;
+  --ink:#3f3350;
+  --shadow:0 20px 45px -20px rgba(124,90,158,.35);
+  --radius-lg:28px;
+  --radius-md:18px;
+  --radius-sm:10px;
+  --font-display:'Playfair Display', serif;
+  --font-body:'Cormorant Garamond', serif;
+  --font-script:'Alex Brush', cursive;
+}
+
+[data-theme="dark"]{
+  --cream:#221a2e;
+  --paper:#2a2138;
+  --lilac-pale:#3a2d4d;
+  --lilac:#a487cc;
+  --lilac-deep:#c8a9ef;
+  --lilac-ink:#efe6fb;
+  --ink:#ece3f7;
+  --shadow:0 20px 50px -18px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 15% 0%, var(--lilac-pale) 0%, transparent 45%),
+    radial-gradient(circle at 90% 10%, var(--lilac-pale) 0%, transparent 40%),
+    var(--cream);
+  color:var(--ink);
+  font-family:var(--font-body);
+  transition:background .4s ease, color .4s ease;
+  overflow-x:hidden;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important;}
+}
+
+/* ---------- floral corner flourishes (decorative SVG, palette-matched) ---------- */
+.floral-corner{position:absolute; width:120px; height:120px; opacity:.55; pointer-events:none;}
+.floral-corner.tl{top:0; left:0;}
+.floral-corner.tr{top:0; right:0; transform:scaleX(-1);}
+.floral-corner.bl{bottom:0; left:0; transform:scaleY(-1);}
+.floral-corner.br{bottom:0; right:0; transform:scale(-1,-1);}
+
+/* ---------- top bar (theme / sound / fullscreen) ---------- */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; justify-content:flex-end; gap:10px;
+  padding:14px 22px;
+  background:linear-gradient(to bottom, var(--cream) 60%, transparent);
+  backdrop-filter:blur(6px);
+}
+.icon-btn{
+  width:42px; height:42px; border-radius:50%;
+  border:1px solid var(--gold-light);
+  background:rgba(255,255,255,.5);
+  color:var(--lilac-deep);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:18px;
+  transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+[data-theme="dark"] .icon-btn{background:rgba(255,255,255,.06);}
+.icon-btn:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+.icon-btn:focus-visible, button:focus-visible, input:focus-visible, .num-circle:focus-visible{
+  outline:2px solid var(--gold-deep); outline-offset:3px;
+}
+
+/* ---------- hero header ---------- */
+.hero{
+  position:relative;
+  text-align:center;
+  padding:10px 20px 40px;
+  max-width:960px;
+  margin:0 auto;
+}
+.hero-frame{
+  position:relative;
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  border:1px solid var(--gold-light);
+}
+.hero-frame img{
+  width:100%; display:block;
+  filter:saturate(1.05);
+}
+.hero-caption{
+  margin-top:26px;
+}
+.eyebrow{
+  font-family:var(--font-display);
+  letter-spacing:.32em;
+  font-size:12px;
+  color:var(--gold-deep);
+  text-transform:uppercase;
+}
+.hero h1{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:clamp(28px,4.4vw,44px);
+  color:var(--lilac-ink);
+  margin:10px 0 4px;
+}
+.hero .names{
+  font-family:var(--font-script);
+  font-size:clamp(38px,6vw,58px);
+  color:var(--lilac-deep);
+  margin:6px 0 0;
+  line-height:1;
+}
+
+/* ---------- section shell ---------- */
+.section{
+  max-width:1040px;
+  margin:0 auto;
+  padding:36px 22px;
+}
+.card{
+  position:relative;
+  background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.28));
+  border:1px solid var(--gold-light);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);
+  padding:34px;
+  backdrop-filter:blur(10px);
+  overflow:hidden;
+}
+[data-theme="dark"] .card{background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));}
+.card h2{
+  font-family:var(--font-display);
+  font-weight:600;
+  color:var(--lilac-ink);
+  font-size:26px;
+  margin:0 0 6px;
+  text-align:center;
+}
+.card .sub{
+  text-align:center;
+  color:var(--gold-deep);
+  font-size:16px;
+  margin:0 0 26px;
+  font-style:italic;
+}
+
+/* ---------- number grid ---------- */
+.grid-wrap{
+  display:flex; flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+}
+.num-circle{
+  --size:52px;
+  width:var(--size); height:var(--size);
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display);
+  font-size:16px; font-weight:600;
+  color:var(--lilac-ink);
+  background:rgba(255,255,255,.5);
+  border:1.5px solid var(--lilac-pale);
+  cursor:pointer;
+  position:relative;
+  transition:transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+}
+[data-theme="dark"] .num-circle{background:rgba(255,255,255,.06);}
+.num-circle.taken{
+  background:linear-gradient(145deg, var(--lilac-pale), #fff);
+  border-color:var(--lilac);
+  color:var(--lilac-deep);
+}
+[data-theme="dark"] .num-circle.taken{background:linear-gradient(145deg, var(--lilac-deep), var(--lilac-pale)); color:#2a2138;}
+.num-circle.free{opacity:.45;}
+.num-circle:hover, .num-circle:focus-visible{
+  transform:translateY(-4px) scale(1.06);
+  box-shadow:0 10px 20px -8px rgba(124,90,158,.5);
+  z-index:2;
+}
+.num-circle.drawn-already{
+  border-color:var(--gold);
+  box-shadow:0 0 0 2px var(--gold-light) inset;
+}
+.num-circle.winner{
+  animation:winnerPulse 1.4s ease-in-out infinite;
+  border-color:var(--gold-deep);
+  background:linear-gradient(145deg, var(--gold-light), #fff);
+  box-shadow:0 0 24px 4px rgba(198,167,104,.7);
+  z-index:3;
+}
+@keyframes winnerPulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.14);}
+}
+.num-circle .tooltip{
+  position:absolute; bottom:120%; left:50%; transform:translateX(-50%);
+  background:var(--lilac-ink); color:#fff;
+  font-family:var(--font-body);
+  font-size:13px; white-space:nowrap;
+  padding:6px 10px; border-radius:8px;
+  opacity:0; pointer-events:none;
+  transition:opacity .18s ease, transform .18s ease;
+}
+.num-circle:hover .tooltip, .num-circle:focus-visible .tooltip{
+  opacity:1; transform:translateX(-50%) translateY(-4px);
+}
+
+/* ---------- main draw button ---------- */
+.draw-btn-wrap{text-align:center; margin:38px 0 6px;}
+.draw-btn{
+  font-family:var(--font-display);
+  font-size:20px; font-weight:600;
+  letter-spacing:.02em;
+  color:#fff;
+  background:linear-gradient(135deg, var(--lilac-deep), var(--lilac));
+  border:none; border-radius:999px;
+  padding:20px 48px;
+  cursor:pointer;
+  box-shadow:0 16px 34px -12px rgba(124,90,158,.55);
+  position:relative;
+  transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+.draw-btn::after{
+  content:"";
+  position:absolute; inset:-2px;
+  border-radius:999px;
+  border:1.5px solid var(--gold-light);
+  pointer-events:none;
+}
+.draw-btn:hover{transform:translateY(-3px); box-shadow:0 22px 40px -14px rgba(124,90,158,.65);}
+.draw-btn:disabled{filter:grayscale(.4) brightness(.9); cursor:not-allowed; transform:none;}
+
+.toggle-row{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  margin-top:18px; font-size:16px; color:var(--lilac-ink);
+}
+.switch{
+  --w:44px; --h:24px;
+  width:var(--w); height:var(--h);
+  background:var(--lilac-pale);
+  border-radius:999px; position:relative; cursor:pointer;
+  border:1px solid var(--lilac);
+  transition:background .2s ease;
+}
+.switch.on{background:var(--lilac-deep);}
+.switch .knob{
+  position:absolute; top:2px; left:2px;
+  width:18px; height:18px; border-radius:50%;
+  background:#fff; transition:left .2s ease;
+  box-shadow:0 2px 4px rgba(0,0,0,.25);
+}
+.switch.on .knob{left:22px;}
+
+/* ---------- stage / animation area ---------- */
+.stage{
+  position:relative;
+  margin:30px auto 0;
+  max-width:520px;
+  min-height:280px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:var(--radius-lg);
+  border:1.5px solid var(--gold-light);
+  background:
+    radial-gradient(circle at 50% 30%, rgba(183,155,214,.25), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,.15));
+  overflow:hidden;
+  padding:30px;
+}
+[data-theme="dark"] .stage{background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));}
+.stage-idle{
+  text-align:center; color:var(--lilac-deep); font-family:var(--font-display); font-size:18px; opacity:.75;
+}
+.roulette-number{
+  font-family:var(--font-display);
+  font-size:clamp(64px,14vw,110px);
+  font-weight:700;
+  color:var(--lilac-ink);
+  text-shadow:0 0 18px rgba(198,167,104,.5);
+  transition:transform .05s linear;
+}
+.roulette-number.spinning{animation:zoomPulse .18s ease-in-out infinite;}
+@keyframes zoomPulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+  100%{transform:scale(1);}
+}
+
+.result-wrap{text-align:center;}
+.result-label{
+  font-family:var(--font-display);
+  letter-spacing:.2em;
+  font-size:14px;
+  color:var(--gold-deep);
+  text-transform:uppercase;
+  opacity:0; transform:translateY(8px);
+  animation:fadeUp .5s ease forwards;
+}
+.result-number{
+  font-family:var(--font-display);
+  font-size:clamp(80px,16vw,128px);
+  font-weight:700;
+  line-height:1;
+  color:var(--lilac-deep);
+  text-shadow:0 0 30px rgba(198,167,104,.6);
+  opacity:0; transform:scale(.7);
+  animation:popIn .6s cubic-bezier(.2,1.4,.4,1) .15s forwards;
+}
+.result-person-label{
+  font-family:var(--font-display);
+  letter-spacing:.2em;
+  font-size:13px;
+  color:var(--gold-deep);
+  text-transform:uppercase;
+  margin-top:14px;
+  opacity:0;
+  animation:fadeUp .5s ease .5s forwards;
+}
+.result-person{
+  font-family:var(--font-script);
+  font-size:clamp(32px,6vw,50px);
+  color:var(--lilac-ink);
+  margin-top:2px;
+  opacity:0; transform:translateY(10px);
+  animation:fadeUp .6s ease .65s forwards;
+}
+@keyframes fadeUp{to{opacity:1; transform:translateY(0);}}
+@keyframes popIn{to{opacity:1; transform:scale(1);}}
+
+/* sparkle particles */
+.particle{
+  position:absolute; border-radius:50%;
+  background:var(--gold);
+  pointer-events:none;
+  opacity:.9;
+}
+
+/* confetti */
+.confetti-piece{
+  position:fixed; top:-10px;
+  width:9px; height:14px;
+  pointer-events:none; z-index:200;
+  border-radius:2px;
+}
+
+/* ---------- history ---------- */
+.history-table-wrap{overflow-x:auto;}
+table{width:100%; border-collapse:collapse; font-size:16px;}
+th,td{padding:10px 12px; text-align:left; border-bottom:1px solid var(--lilac-pale);}
+th{
+  font-family:var(--font-display); font-weight:600;
+  color:var(--gold-deep); font-size:13px; letter-spacing:.06em; text-transform:uppercase;
+}
+tr:last-child td{border-bottom:none;}
+.empty-history{text-align:center; opacity:.6; padding:18px; font-style:italic;}
+
+/* ---------- controls row ---------- */
+.controls-row{
+  display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:22px;
+}
+.btn-ghost{
+  font-family:var(--font-body);
+  font-size:15px;
+  color:var(--lilac-deep);
+  background:transparent;
+  border:1.5px solid var(--lilac);
+  border-radius:999px;
+  padding:10px 22px;
+  cursor:pointer;
+  transition:background .2s ease, color .2s ease, transform .2s ease;
+}
+.btn-ghost:hover{background:var(--lilac-deep); color:#fff; transform:translateY(-2px);}
+.btn-ghost.danger{border-color:#c47a7a; color:#a34e4e;}
+.btn-ghost.danger:hover{background:#a34e4e; color:#fff;}
+input[type="file"]{display:none;}
+
+footer{
+  text-align:center; padding:30px 20px 50px;
+  font-size:13px; color:var(--gold-deep); opacity:.7;
+}
+
+@media print{
+  body *{visibility:hidden;}
+  #printArea, #printArea *{visibility:visible;}
+  #printArea{position:absolute; top:0; left:0; width:100%;}
+}
+
+@media (max-width:600px){
+  .card{padding:22px 16px;}
+  .num-circle{--size:40px; font-size:13px;}
+  .draw-btn{padding:16px 32px; font-size:17px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     BARRA SUPERIOR: tema claro/escuro, som, tela cheia
+     ============================================================ -->
+<div class="topbar">
+  <button class="icon-btn" id="btnSound" title="Ativar/desativar sons" aria-label="Ativar ou desativar sons">🔊</button>
+  <button class="icon-btn" id="btnFullscreen" title="Tela cheia" aria-label="Alternar tela cheia">⛶</button>
+  <button class="icon-btn" id="btnTheme" title="Alternar tema claro/escuro" aria-label="Alternar tema">🌙</button>
+</div>
+
+<!-- ============================================================
+     HERO: imagem original da rifa + título + subtítulo
+     ============================================================ -->
+<header class="hero">
+  <div class="hero-frame">
+    <img src="rifa-capa.jpeg" alt="Arte da Rifa de Casamento de João e Eduarda">
+  </div>
+  <div class="hero-caption">
+    <div class="eyebrow">Ao vivo</div>
+    <h1>Sorteio da Rifa de Casamento</h1>
+    <p class="names">João &amp; Eduarda</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============================================================
+       GRADE DE NÚMEROS 1–100
+       ============================================================ -->
+  <section class="section">
+    <div class="card">
+      <svg class="floral-corner tl" viewBox="0 0 100 100"><path d="M5 5 Q30 0 40 25 Q20 30 5 5Z" fill="#b79bd6" opacity=".5"/><circle cx="15" cy="15" r="4" fill="#c6a768"/></svg>
+      <svg class="floral-corner br" viewBox="0 0 100 100"><path d="M5 5 Q30 0 40 25 Q20 30 5 5Z" fill="#b79bd6" opacity=".5"/><circle cx="15" cy="15" r="4" fill="#c6a768"/></svg>
+      <h2>Grade da Rifa</h2>
+      <p class="sub">Passe o mouse ou toque em um número para ver o participante</p>
+      <div class="grid-wrap" id="numberGrid"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       BOTÃO DE SORTEIO + ANIMAÇÃO + RESULTADO
+       ============================================================ -->
+  <section class="section">
+    <div class="card">
+      <h2>Realizar o Sorteio</h2>
+      <p class="sub">Clique no botão abaixo para começar a emoção</p>
+
+      <div class="draw-btn-wrap">
+        <button class="draw-btn" id="btnDraw">🎉 REALIZAR SORTEIO</button>
+      </div>
+
+      <div class="toggle-row">
+        <div class="switch on" id="noRepeatSwitch" role="switch" aria-checked="true" tabindex="0"><div class="knob"></div></div>
+        <span>Não repetir números sorteados</span>
+      </div>
+
+      <div class="stage" id="stage">
+        <div class="stage-idle" id="stageIdle">Aguardando o próximo sorteio…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       HISTÓRICO DE SORTEIOS
+       ============================================================ -->
+  <section class="section" id="printArea">
+    <div class="card">
+      <h2>Histórico de Sorteios</h2>
+      <p class="sub">Todos os números já sorteados ficam registrados aqui</p>
+      <div class="history-table-wrap">
+        <table id="historyTable">
+          <thead>
+            <tr><th>Sorteio</th><th>Número</th><th>Participante</th><th>Horário</th></tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr><td colspan="4" class="empty-history">Nenhum sorteio realizado ainda</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="controls-row">
+        <label class="btn-ghost" for="csvInput">📥 Importar participantes (CSV)</label>
+        <input type="file" id="csvInput" accept=".csv">
+        <button class="btn-ghost" id="btnExportPdf">📄 Exportar histórico em PDF</button>
+        <button class="btn-ghost danger" id="btnReset">🔄 Reiniciar Sorteio</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Sorteio da Rifa de Casamento — João &amp; Eduarda · feito com carinho 💜</footer>
+
+<script>
+/* ============================================================
+   1. DADOS DOS PARTICIPANTES
+   Cada nome mapeado para seus números. Um número → um participante.
+   (Atualizado conforme lista mais recente enviada por João;
+   o número 32 foi confirmado como pertencente a Douglas.)
+   ============================================================ */
+const participantsData = [
+  ["Jhulia", [6]],
+  ["Herlainy", [3, 24, 55, 78, 93]],
+  ["Ellen Doquinh", [10, 26]],
+  ["Tia Cláudia", [4, 15, 20, 25]],
+  ["Pedro", [91]],
+  ["John", [50]],
+  ["Yuri", [7, 17]],
+  ["Gabi", [45, 68]],
+  ["Ricky", [1]],
+  ["Gustavo", [70, 79]],
+  ["Gaby", [16]],
+  ["Mariane", [84]],
+  ["Felipe", [33, 35, 60, 89, 96]],
+  ["Lulu", [12, 48]],
+  ["Tia Flávia", [2, 13, 18, 38, 57, 69, 74, 88, 95, 100]],
+  ["Brenda", [27, 63]],
+  ["Manu Trabalho", [85, 86, 87]],
+  ["Luan", [22, 66]],
+  ["Lilian Prima", [8, 11, 43, 83]],
+  ["Fabiano Junior", [19, 64]],
+  ["Marquinhos", [9, 29, 52, 94]],
+  ["Brendon", [14]],
+  ["Paula", [37, 44]],
+  ["Maria das Neves", [30, 47, 54, 98]],
+  ["Júnior Super", [21, 36, 65]],
+  ["Arthur e Débora", [42, 77]],
+  ["Ronny", [28]],
+  ["Erick Jonny", [46]],
+  ["Jhonny", [5, 23]],
+  ["Emilyn", [56, 72]],
+  ["Miranda", [40, 53, 67]],
+  ["Daniel", [99]],
+  ["Danny", [73]],
+  ["Dra. Paloma", [76, 82]],
+  ["Silvanice", [31, 34]],
+  ["Dani", [49, 59]],
+  ["Gil", [97]],
+  ["Lara", [62, 75]],
+  ["Douglas", [39, 58, 32]],
+  ["Dr. Felipe", [41, 51, 61, 71, 80, 81, 90, 92]]
+];
+
+// monta o dicionário número -> nome
+const participantsMap = {};
+participantsData.forEach(([name, numbers]) => {
+  numbers.forEach(n => { participantsMap[n] = name; });
+});
+
+/* ============================================================
+   2. ESTADO PERSISTENTE (localStorage)
+   ============================================================ */
+const STORAGE_KEY = "rifaJoaoEduarda_v1";
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return { history: [], drawnNumbers: [], noRepeat: true, extraParticipants: {} };
+    return JSON.parse(raw);
+  }catch(e){
+    return { history: [], drawnNumbers: [], noRepeat: true, extraParticipants: {} };
+  }
+}
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){ console.error("Não foi possível salvar no localStorage:", e); }
+}
+
+let state = loadState();
+// aplica participantes extras importados via CSV em sessões anteriores
+Object.assign(participantsMap, state.extraParticipants || {});
+
+/* ============================================================
+   3. SONS (Web Audio API — sem arquivos externos)
+   ============================================================ */
+let audioCtx = null;
+let soundEnabled = true;
+function ensureAudio(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep({freq=440, duration=0.08, type="sine", volume=0.15, sweepTo=null}){
+  if(!soundEnabled) return;
+  const ctx = ensureAudio();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+  if(sweepTo) osc.frequency.linearRampToValueAtTime(sweepTo, ctx.currentTime + duration);
+  gain.gain.setValueAtTime(volume, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + duration);
+}
+function playStartSound(){ beep({freq:220, sweepTo:660, duration:0.5, type:"sawtooth", volume:0.12}); }
+function playTickSound(){ beep({freq:900, duration:0.045, type:"square", volume:0.08}); }
+function playVictorySound(){
+  [523,659,784,1046].forEach((f,i)=>{
+    setTimeout(()=>beep({freq:f, duration:0.35, type:"triangle", volume:0.16}), i*110);
+  });
+}
+
+/* ============================================================
+   4. RENDERIZAÇÃO DA GRADE 1–100
+   ============================================================ */
+const gridEl = document.getElementById("numberGrid");
+
+function renderGrid(){
+  gridEl.innerHTML = "";
+  for(let n=1; n<=100; n++){
+    const has = !!participantsMap[n];
+    const btn = document.createElement("div");
+    btn.className = "num-circle " + (has ? "taken" : "free");
+    if(state.drawnNumbers.includes(n)) btn.classList.add("drawn-already");
+    btn.tabIndex = 0;
+    btn.dataset.number = n;
+    btn.textContent = String(n).padStart(2,"0");
+    const tip = document.createElement("span");
+    tip.className = "tooltip";
+    tip.textContent = has ? `${String(n).padStart(2,"0")} — ${participantsMap[n]}` : `${String(n).padStart(2,"0")} — sem participante`;
+    btn.appendChild(tip);
+    gridEl.appendChild(btn);
+  }
+}
+renderGrid();
+
+function highlightWinner(number){
+  document.querySelectorAll(".num-circle.winner").forEach(el => el.classList.remove("winner"));
+  const el = gridEl.querySelector(`.num-circle[data-number="${number}"]`);
+  if(el){
+    el.classList.add("winner", "drawn-already");
+    el.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+}
+
+/* ============================================================
+   5. HISTÓRICO
+   ============================================================ */
+const historyBody = document.getElementById("historyBody");
+
+function renderHistory(){
+  if(state.history.length === 0){
+    historyBody.innerHTML = `<tr><td colspan="4" class="empty-history">Nenhum sorteio realizado ainda</td></tr>`;
+    return;
+  }
+  historyBody.innerHTML = state.history
+    .slice()
+    .reverse()
+    .map(item => `<tr>
+        <td>${item.index}</td>
+        <td>${String(item.number).padStart(2,"0")}</td>
+        <td>${item.name}</td>
+        <td>${item.time}</td>
+      </tr>`)
+    .join("");
+}
+renderHistory();
+
+/* ============================================================
+   6. TOGGLE "NÃO REPETIR NÚMEROS"
+   ============================================================ */
+const noRepeatSwitch = document.getElementById("noRepeatSwitch");
+function refreshSwitchUI(){
+  noRepeatSwitch.classList.toggle("on", state.noRepeat);
+  noRepeatSwitch.setAttribute("aria-checked", String(state.noRepeat));
+}
+refreshSwitchUI();
+function toggleNoRepeat(){
+  state.noRepeat = !state.noRepeat;
+  refreshSwitchUI();
+  saveState();
+}
+noRepeatSwitch.addEventListener("click", toggleNoRepeat);
+noRepeatSwitch.addEventListener("keydown", e=>{
+  if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggleNoRepeat(); }
+});
+
+/* ============================================================
+   7. ANIMAÇÃO DO SORTEIO
+   ============================================================ */
+const stage = document.getElementById("stage");
+const btnDraw = document.getElementById("btnDraw");
+
+function getAvailableNumbers(){
+  const all = Array.from({length:100}, (_,i)=>i+1);
+  if(state.noRepeat){
+    return all.filter(n => !state.drawnNumbers.includes(n));
+  }
+  return all;
+}
+
+function spawnParticles(container, count=18){
+  for(let i=0;i<count;i++){
+    const p = document.createElement("div");
+    p.className = "particle";
+    const size = 3 + Math.random()*5;
+    p.style.width = size+"px";
+    p.style.height = size+"px";
+    p.style.left = (Math.random()*100)+"%";
+    p.style.top = (Math.random()*100)+"%";
+    p.style.transform = "translate(-50%,-50%)";
+    p.style.opacity = (0.3 + Math.random()*0.6).toFixed(2);
+    container.appendChild(p);
+    const dur = 900 + Math.random()*900;
+    p.animate([
+      {transform:"translate(-50%,-50%) scale(1)", opacity:p.style.opacity},
+      {transform:`translate(${(Math.random()*40-20)}px, ${(Math.random()*40-20)-30}px) scale(0)`, opacity:0}
+    ], {duration:dur, easing:"ease-out"});
+    setTimeout(()=>p.remove(), dur);
+  }
+}
+
+function launchConfetti(){
+  const colors = ["#b79bd6","#c6a768","#e3d1a4","#7c5a9e","#f8f4ee"];
+  const count = 90;
+  for(let i=0;i<count;i++){
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = Math.random()*100+"vw";
+    piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+    piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+    document.body.appendChild(piece);
+    const fall = 2200 + Math.random()*1800;
+    const drift = (Math.random()*160-80);
+    const rotate = Math.random()*720-360;
+    piece.animate([
+      {transform:`translate(0,0) rotate(0deg)`, opacity:1},
+      {transform:`translate(${drift}px, 100vh) rotate(${rotate}deg)`, opacity:0.9}
+    ], {duration:fall, easing:"cubic-bezier(.3,.6,.7,1)"});
+    setTimeout(()=>piece.remove(), fall+50);
+  }
+}
+
+let isDrawing = false;
+
+function runDraw(){
+  if(isDrawing) return;
+
+  const available = getAvailableNumbers();
+  if(available.length === 0){
+    stage.innerHTML = `<div class="stage-idle">🎊 Todos os números já foram sorteados!</div>`;
+    return;
+  }
+
+  isDrawing = true;
+  btnDraw.disabled = true;
+  playStartSound();
+
+  const finalNumber = available[Math.floor(Math.random()*available.length)];
+
+  stage.innerHTML = `<div class="roulette-number spinning" id="rouletteNum">00</div>`;
+  const rouletteEl = document.getElementById("rouletteNum");
+  spawnParticles(stage, 14);
+
+  const totalDuration = 6800; // entre 6 e 8 segundos
+  const startTime = performance.now();
+  let lastTick = 0;
+
+  function tick(now){
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / totalDuration, 1);
+
+    // easing: rápido no início, bem lento perto do fim (efeito suspense)
+    const eased = 1 - Math.pow(1 - progress, 4);
+    // intervalo entre trocas de número cresce de ~35ms a ~420ms
+    const currentInterval = 35 + eased * 385;
+
+    if(elapsed - lastTick >= currentInterval){
+      lastTick = elapsed;
+      const randomShown = available[Math.floor(Math.random()*available.length)];
+      rouletteEl.textContent = String(randomShown).padStart(2,"0");
+      playTickSound();
+      if(Math.random() > 0.6) spawnParticles(stage, 4);
+    }
+
+    if(progress < 1){
+      requestAnimationFrame(tick);
+    }else{
+      finishDraw(finalNumber);
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+function finishDraw(number){
+  const name = participantsMap[number] || "Número sem participante cadastrado";
+
+  stage.innerHTML = `
+    <div class="result-wrap">
+      <div class="result-label">🎉 Número Sorteado</div>
+      <div class="result-number">${String(number).padStart(2,"0")}</div>
+      <div class="result-person-label">👤 Participante</div>
+      <div class="result-person">"${name}"</div>
+    </div>`;
+
+  playVictorySound();
+  launchConfetti();
+  highlightWinner(number);
+
+  // registra no histórico
+  state.drawnNumbers.push(number);
+  const now = new Date();
+  state.history.push({
+    index: state.history.length + 1,
+    number,
+    name,
+    time: now.toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"})
+  });
+  saveState();
+  renderHistory();
+  renderGrid();
+  highlightWinner(number);
+
+  isDrawing = false;
+  btnDraw.disabled = false;
+}
+
+btnDraw.addEventListener("click", runDraw);
+
+/* ============================================================
+   8. REINICIAR SORTEIO
+   ============================================================ */
+document.getElementById("btnReset").addEventListener("click", () => {
+  if(!confirm("Isso vai apagar todo o histórico e liberar todos os números sorteados. Deseja continuar?")) return;
+  state.history = [];
+  state.drawnNumbers = [];
+  saveState();
+  renderHistory();
+  renderGrid();
+  stage.innerHTML = `<div class="stage-idle" id="stageIdle">Aguardando o próximo sorteio…</div>`;
+  document.querySelectorAll(".num-circle.winner").forEach(el => el.classList.remove("winner"));
+});
+
+/* ============================================================
+   9. IMPORTAÇÃO DE PARTICIPANTES POR CSV
+   Formato esperado por linha: numero,nome
+   Avisa se o número já existir.
+   ============================================================ */
+document.getElementById("csvInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const lines = reader.result.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const conflicts = [];
+    const added = [];
+    lines.forEach(line => {
+      const parts = line.split(",");
+      if(parts.length < 2) return;
+      const num = parseInt(parts[0].trim(), 10);
+      const name = parts.slice(1).join(",").trim();
+      if(!num || num < 1 || num > 100 || !name) return;
+      if(participantsMap[num]){
+        conflicts.push(`${num} (já é de ${participantsMap[num]})`);
+      }else{
+        participantsMap[num] = name;
+        state.extraParticipants[num] = name;
+        added.push(num);
+      }
+    });
+    saveState();
+    renderGrid();
+    let msg = `${added.length} número(s) importado(s) com sucesso.`;
+    if(conflicts.length){
+      msg += `\n\nOs seguintes números já existiam e foram ignorados:\n${conflicts.join(", ")}`;
+    }
+    alert(msg);
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+/* ============================================================
+   10. EXPORTAR HISTÓRICO EM PDF
+   ============================================================ */
+document.getElementById("btnExportPdf").addEventListener("click", () => {
+  if(state.history.length === 0){
+    alert("Ainda não há sorteios no histórico para exportar.");
+    return;
+  }
+  try{
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("Histórico do Sorteio — Rifa João & Eduarda", 14, 18);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    let y = 30;
+    doc.text("Sorteio", 14, y);
+    doc.text("Número", 44, y);
+    doc.text("Participante", 74, y);
+    doc.text("Horário", 154, y);
+    y += 6;
+    doc.setLineWidth(0.2);
+    doc.line(14, y-4, 196, y-4);
+    state.history.forEach(item => {
+      if(y > 280){ doc.addPage(); y = 20; }
+      doc.text(String(item.index), 14, y);
+      doc.text(String(item.number).padStart(2,"0"), 44, y);
+      doc.text(String(item.name), 74, y);
+      doc.text(String(item.time), 154, y);
+      y += 8;
+    });
+    doc.save("historico-sorteio-rifa.pdf");
+  }catch(err){
+    console.error(err);
+    alert("Não foi possível gerar o PDF automaticamente. Abrindo a janela de impressão como alternativa.");
+    window.print();
+  }
+});
+
+/* ============================================================
+   11. TEMA CLARO / ESCURO
+   ============================================================ */
+const btnTheme = document.getElementById("btnTheme");
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  btnTheme.textContent = theme === "dark" ? "☀️" : "🌙";
+  localStorage.setItem(STORAGE_KEY + "_theme", theme);
+}
+applyTheme(localStorage.getItem(STORAGE_KEY + "_theme") || "light");
+btnTheme.addEventListener("click", () => {
+  const current = document.documentElement.getAttribute("data-theme");
+  applyTheme(current === "dark" ? "light" : "dark");
+});
+
+/* ============================================================
+   12. MODO TELA CHEIA
+   ============================================================ */
+document.getElementById("btnFullscreen").addEventListener("click", () => {
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  }else{
+    document.exitFullscreen();
+  }
+});
+
+/* ============================================================
+   13. ATIVAR / DESATIVAR SONS
+   ============================================================ */
+const btnSound = document.getElementById("btnSound");
+btnSound.addEventListener("click", () => {
+  soundEnabled = !soundEnabled;
+  btnSound.textContent = soundEnabled ? "🔊" : "🔇";
+});
+</script>
+</body>
+</html>
